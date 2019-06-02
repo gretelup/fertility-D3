@@ -14,7 +14,7 @@ var width = svgWidth - margin.left - margin.right;
 var height = svgHeight - margin.top - margin.bottom;
 
 var svg = d3
-  .select(".chart")
+  .select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -42,7 +42,7 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
     
     // Create x and y scale functions
     var xLinearScale = xScale(fertData, chosenXAxis);
-    var yLinearScale = yScale(fertData, chosenXAxis);
+    var yLinearScale = yScale(fertData, chosenYAxis);
 
     // Create initial axes functions
     var bottomAxis = d3.axisBottom(xLinearScale);
@@ -56,13 +56,13 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
 
     var yAxis = chartGroup.append("g")
         .classed("y-axis", true)
-        .attr("transform", `translate(0, ${width})`)
+        // .attr("transform", `translate(${width}, height)`)
         .call(leftAxis);
 
-    // GRETEL - FUTZ AROUND WITH ATTRIBUTES; ALSO APPEND STATE NAMES
+    
     // Append initial bubbles
     var circlesGroup = chartGroup.selectAll("circle")
-        .data(hairData)
+        .data(fertData)
         .enter()
         .append("circle")
         .attr("cx", d => xLinearScale(d[chosenXAxis]))
@@ -70,65 +70,164 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
         .attr("r", 20)
         .attr("fill", "purple")
         .attr("opacity", ".5");
-    // GRETEL - FUTZ AROUND W/ NUMBERS
-    // Create group for  3 x-axis labels
+    
+    // Append initial labels for bubbles
+    var textLabels = chartGroup.append("text")
+      .selectAll("tspan")
+      .data(fertData)
+      .enter()
+      .append("tspan")
+      .attr("x", d => xLinearScale(d[chosenXAxis])-7)
+      .attr("y", d => yLinearScale(d[chosenYAxis])+5)
+      .text(d => d.ABBR)
+      .attr("fill", "black")
+      .attr("font-size", "12px");
+
+    // Create group and labels for 3 x-axis labels
     var xlabelsGroup = chartGroup.append("g")
         .attr("transform", `translate(${width / 2}, ${height + 20})`);
-    
     var unmarryLabel = xlabelsGroup.append("text")
         .attr("x", 0)
         .attr("y", 20)
-        .attr("value", "UNMARRY") // value to grab for event listener
-        .classed("active", true) // NOT SURE WHAT THIS IS
-        .text("% Women in Poverty");
-
+        .attr("value", "UNMARRY")
+        .classed("active", true)
+        .text("% Women who are Unmarried");
     var teenLabel = xlabelsGroup.append("text")
         .attr("x", 0)
         .attr("y", 40)
         .attr("value", "TEEN") // value to grab for event listener
         .classed("inactive", true) // NOT SURE WHAT THIS IS
         .text("% Women ages 15-19");
-    
     var hsLabel = xlabelsGroup.append("text")
         .attr("x", 0)
         .attr("y", 60)
-        .attr("value", "HS") // value to grab for event listener
+        .attr("value", "HS")
         .classed("inactive", true) // NOT SURE WHAT THIS IS
         .text("% Women without High School Degree");
     
-    // GRETEL CHECK THE TRANSLATE MATH
-    // Create group for  3 y-axis labels
+    // Create group and labels for 3 y-axis labels
     var ylabelsGroup = chartGroup.append("g")
-        .attr("transform", `translate(${width - 20}, ${height / 20})`);
-
     var povLabel = ylabelsGroup.append("text")
-        .attr("x", -20)
-        .attr("y", 0)
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
         .attr("value", "POV") // value to grab for event listener
         .classed("active", true) // NOT SURE WHAT THIS IS
         .text("% Women in Poverty");
-    
     var employLabel = ylabelsGroup.append("text")
-        .attr("x", -40)
-        .attr("y", 0)
+        .attr("transform", "rotate(-90)")
+        .attr("y", 20 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
         .attr("value", "EMPLOY") // value to grab for event listener
         .classed("inactive", true) // NOT SURE WHAT THIS IS
         .text("% Women Unemployed");
-
     var assistLabel = ylabelsGroup.append("text")
-        .attr("x", -60)
-        .attr("y", 0)
+        .attr("transform", "rotate(-90)")
+        .attr("y", 40 - margin.left)
+        .attr("x", 0 - (height / 2))
+        .attr("dy", "1em")
         .attr("value", "ASSIST") // value to grab for event listener
         .classed("inactive", true) // NOT SURE WHAT THIS IS
         .text("% Women Receiving Public Assistance");
 
     // Attach x axis labels event listener
     xlabelsGroup.selectAll("text")
-        .on("click", xSelect);
-    
-    // Attach y axis labels event listene
+        .on("click", function() {
+          var value = d3.select(this).attr("value");
+          // If new value is selected, replace appropriate parameters
+          if (value !== chosenXAxis) {
+            chosenXAxis = value;
+            xLinearScale = xScale(fertData, chosenXAxis);
+            xAxis = renderXAxes(xLinearScale, xAxis);
+            circlesGroup = renderXCircles(circlesGroup, xLinearScale, chosenXAxis);
+            textLabels = renderXLabels(textLabels, xLinearScale, chosenXAxis);
+            // changes classes to change bold text
+            if (chosenXAxis === "UNMARRY") {
+              unmarryLabel
+                .classed("active", true)
+                .classed("inactive", false);
+              teenLabel
+                .classed("active", false)
+                .classed("inactive", true);
+              hsLabel
+                  .classed("active", false)
+                  .classed("inactive", true);
+            }
+            else if (chosenXAxis == "TEEN") {
+              unmarryLabel
+                .classed("active", false)
+                .classed("inactive", true);
+              teenLabel
+                .classed("active", true)
+                .classed("inactive", false);
+              hsLabel
+                .classed("active", false)
+                .classed("inactive", true);
+            }
+            else {
+              unmarryLabel
+                .classed("active", false)
+                .classed("inactive", true);
+              teenLabel
+                .classed("active", false)
+                .classed("inactive", true);
+              hsLabel
+                  .classed("active", true)
+                  .classed("inactive", false);
+            }
+          }
+    });     
+    // Attach y axis labels event listener
     ylabelsGroup.selectAll("text")
-        .on("click", ySelect);
+      .on("click", function(){
+        var value = d3.select(this).attr("value");
+
+    // If new value is selected, replace appropriate parameters
+        if (value !== chosenYAxis) {
+            chosenYAxis = value;
+            yLinearScale = yScale(fertData, chosenYAxis);
+            yAxis = renderYAxes(yLinearScale, yAxis);
+            circlesGroup = renderYCircles(circlesGroup, yLinearScale, chosenYAxis);
+            textLabels = renderYLabels(textLabels, yLinearScale, chosenYAxis);
+            
+            // changes classes to change bold text
+            if (chosenYAxis === "POV") {
+                povLabel
+                  .classed("active", true)
+                  .classed("inactive", false);
+                employLabel
+                  .classed("active", false)
+                  .classed("inactive", true);
+                assistLabel
+                    .classed("active", false)
+                    .classed("inactive", true);
+              }
+            else if (chosenYAxis === "EMPLOY") {
+                povLabel
+                  .classed("active", false)
+                  .classed("inactive", true);
+                employLabel
+                  .classed("active", true)
+                  .classed("inactive", false);
+                assistLabel
+                    .classed("active", false)
+                    .classed("inactive", true);
+            }
+            else {
+                povLabel
+                  .classed("active", false)
+                  .classed("inactive", true);
+                employLabel
+                  .classed("active", false)
+                  .classed("inactive", true);
+                assistLabel
+                    .classed("active", true)
+                    .classed("inactive", false);
+            }
+        }
+      });
 });
 
 // Step 11: Add tooltips (separate function) --> see tooltip function
@@ -139,124 +238,40 @@ function xScale(fertData, chosenXAxis) {
     // create scales
     // GRETEL - UPDATE THE NUMBERS AS IS APPROPRIATE
     var xLinearScale = d3.scaleLinear()
-      .domain([d3.min(hairData, d => d[chosenXAxis]) * 0.8,
-        d3.max(hairData, d => d[chosenXAxis]) * 1.2
-      ])
+      .domain([d3.min(fertData, d => d[chosenXAxis]) / 1.5, d3.max(fertData, d => d[chosenXAxis])])
       .range([0, width]);
     return xLinearScale;
   }
 
 // function used for updating Y-scale var upon click on axis label
-function YScale(fertData, chosenYAxis) {
+function yScale(fertData, chosenYAxis) {
     // create scales
-    // GRETEL - UPDATE THE NUMBERS AS IS APPROPRIATE
-    var YLinearScale = d3.scaleLinear()
-      .domain([d3.min(hairData, d => d[chosenYAxis]) * 0.8,
-        d3.max(hairData, d => d[chosenYAxis]) * 1.2
-      ])
+    var yLinearScale = d3.scaleLinear()
+      .domain([d3.min(fertData, d => d[chosenYAxis]) / 1.5, d3.max(fertData, d => d[chosenYAxis])])
       .range([height, 0]);
-    return xLinearScale;
+    return yLinearScale;
   }
 
-// Event listener function for change in selected X axis
-function xSelect() {
-    // Get value of selection
-    var value = d3.select(this).attr("value");
+// function used for updating xAxis var upon click on axis label
+function renderXAxes(newXScale, xAxis) {
+  var bottomAxis = d3.axisBottom(newXScale);
 
-    // If new value is selected, replace appropriate parameters
-    if (value !== chosenXAxis) {
-        chosenXAxis = value;
-        xLinearScale = xScale(fertData, chosenXAxis);
-        xAxis = renderXAxes(xLinearScale, xAxis);
-        circlesGroup = renderXCircles(circlesGroup, xLinearScale, chosenXAxis);
-        
-        // changes classes to change bold text
-        if (chosenXAxis === "UNMARRY") {
-            unmarryLabel
-              .classed("active", true)
-              .classed("inactive", false);
-            teenLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            hsLabel
-                .classed("active", false)
-                .classed("inactive", true);
-          }
-          else if (chosenXAxis == "TEEN") {
-            unmarryLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            teenLabel
-              .classed("active", true)
-              .classed("inactive", false);
-            hsLabel
-                .classed("active", false)
-                .classed("inactive", true);
-          }
+  xAxis.transition()
+    .duration(1000)
+    .call(bottomAxis);
 
-          else {
-            unmarryLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            teenLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            hsLabel
-                .classed("active", true)
-                .classed("inactive", false);
-          }
-    }
+  return xAxis;
 }
 
-// Event listener function for change in selected Y axis
-function ySelect() {
-    // Get value of selection
-    var value = d3.select(this).attr("value");
+function renderYAxes(newYScale, yAxis) {
+  var leftAxis = d3.axisLeft(newYScale);
 
-    // If new value is selected, replace appropriate parameters
-    if (value !== chosenYAxis) {
-        chosenYAxis = value;
-        yLinearScale = xScale(fertData, chosenYAxis);
-        yAxis = renderAxes(yLinearScale, yAxis);
-        circlesGroup = renderCircles(circlesGroup, yLinearScale, chosenYAxis);
-        
-        // changes classes to change bold text
-        if (chosenYAxis === "POV") {
-            povLabel
-              .classed("active", true)
-              .classed("inactive", false);
-            employLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            assistLabel
-                .classed("active", false)
-                .classed("inactive", true);
-          }
-        else if (chosenYAxis === "EMPLOY") {
-            povLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            employLabel
-              .classed("active", true)
-              .classed("inactive", false);
-            assistLabel
-                .classed("active", false)
-                .classed("inactive", true);
-        }
-        else {
-            povLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            employLabel
-              .classed("active", false)
-              .classed("inactive", true);
-            assistLabel
-                .classed("active", true)
-                .classed("inactive", false);
-        }
-    }
+  yAxis.transition()
+    .duration(1000)
+    .call(leftAxis);
+
+  return yAxis;
 }
-
 // Function used for updating circles group when new X axis is selected
 function renderXCircles(circlesGroup, newXScale, chosenXaxis) {
 
@@ -271,12 +286,27 @@ function renderXCircles(circlesGroup, newXScale, chosenXaxis) {
 function renderYCircles(circlesGroup, newYScale, chosenYaxis) {
 
     circlesGroup.transition()
-    .duration(1000)
-    .attr("cy", d => newYScale(d[chosenYAxis]));
+      .duration(1000)
+      .attr("cy", d => newYScale(d[chosenYAxis]));
 
   return circlesGroup;
 }
 
+// Function used for updating bubble labels when new X axis is selected
+function renderXLabels(textLabels, xLinearScale, chosenXAxis) {
+  textLabels.transition()
+    .duration(1000)
+    .attr("x", d => xLinearScale(d[chosenXAxis])-7);
+  return textLabels;
+}
+
+// Function used for updating bubble labels when new Y axis is selected
+function renderYLabels(textLabels, yLinearScale, chosenYAxis) {
+  textLabels.transition()
+    .duration(1000)
+    .attr("y", d => yLinearScale(d[chosenYAxis])+5);
+  return textLabels;
+}
 
 // Step 11: Tooltip function
 // ToolTip function --> part of this needs to be in master code
