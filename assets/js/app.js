@@ -228,10 +228,25 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
             }
         }
       });
+
+  var toolTip = d3.tip()
+    .attr("class", "d3-tip")
+    .offset([-8, 0])
+    .html(function(d) {
+      return (`<strong>${d.STATE}</strong><br>${d.UNMARRY} % Unmarried<br>${d.POV} % in Poverty`);
+    });
+  // Step 2: Create the tooltip in chartGroup.
+  chartGroup.call(toolTip);
+
+  // Step 3: Create "mouseover" event listener to display tooltip
+  circlesGroup.on("mouseover", function(d) {
+    toolTip.show(d, this);
+  })
+  // Step 4: Create "mouseout" event listener to hide tooltip
+    .on("mouseout", function(d) {
+      toolTip.hide(d);
+    });
 });
-
-// Step 11: Add tooltips (separate function) --> see tooltip function
-
 
 // function used for updating x-scale var upon click on axis label
 function xScale(fertData, chosenXAxis) {
@@ -307,28 +322,3 @@ function renderYLabels(textLabels, yLinearScale, chosenYAxis) {
     .attr("y", d => yLinearScale(d[chosenYAxis])+5);
   return textLabels;
 }
-
-// Step 11: Tooltip function
-// ToolTip function --> part of this needs to be in master code
-// Need to change hair code to take yaxis into account too, but I don't think we need 
-// separate funtions for x and y circles
-
-// Step 1: Initialize Tooltip
-// var toolTip = d3.tip()
-// .attr("class", "tooltip")
-// .offset([80, -60])
-// .html(function(d) {
-//   return (`<strong>${d.date}<strong><hr>${d.morning} level craving`);
-// });
-
-// Step 2: Create the tooltip in chartGroup.
-// chartGroup.call(toolTip);
-
-// Step 3: Create "mouseover" event listener to display tooltip
-// circlesGroup.on("mouseover", function(d) {
-//   toolTip.show(d, this);
-// })
-// Step 4: Create "mouseout" event listener to hide tooltip
-//   .on("mouseout", function(d) {
-//     toolTip.hide(d);
-//   });
