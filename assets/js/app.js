@@ -27,7 +27,6 @@ var chosenXAxis = "UNMARRY";
 var chosenYAxis = "POV";
 
 // Import data from csv
-
 d3.csv("/assets/data/fertility.csv").then(function(fertData) {
     
     // Parse data
@@ -56,10 +55,8 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
 
     var yAxis = chartGroup.append("g")
         .classed("y-axis", true)
-        // .attr("transform", `translate(${width}, height)`)
         .call(leftAxis);
 
-    
     // Append initial bubbles
     var circlesGroup = chartGroup.selectAll("circle")
         .data(fertData)
@@ -228,21 +225,20 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
             }
         }
       });
-
+  // Attach tooltip function
   var toolTip = d3.tip()
     .attr("class", "d3-tip")
     .offset([-8, 0])
     .html(function(d) {
       return (`<strong>${d.STATE}</strong><br>${d.UNMARRY} % Unmarried<br>${d.POV} % in Poverty`);
     });
-  // Step 2: Create the tooltip in chartGroup.
   chartGroup.call(toolTip);
 
-  // Step 3: Create "mouseover" event listener to display tooltip
+  // Create "mouseover" event listener to display tooltip
   circlesGroup.on("mouseover", function(d) {
     toolTip.show(d, this);
   })
-  // Step 4: Create "mouseout" event listener to hide tooltip
+  // Create "mouseout" event listener to hide tooltip
     .on("mouseout", function(d) {
       toolTip.hide(d);
     });
@@ -250,8 +246,6 @@ d3.csv("/assets/data/fertility.csv").then(function(fertData) {
 
 // function used for updating x-scale var upon click on axis label
 function xScale(fertData, chosenXAxis) {
-    // create scales
-    // GRETEL - UPDATE THE NUMBERS AS IS APPROPRIATE
     var xLinearScale = d3.scaleLinear()
       .domain([d3.min(fertData, d => d[chosenXAxis]) / 1.5, d3.max(fertData, d => d[chosenXAxis])])
       .range([0, width]);
@@ -260,50 +254,42 @@ function xScale(fertData, chosenXAxis) {
 
 // function used for updating Y-scale var upon click on axis label
 function yScale(fertData, chosenYAxis) {
-    // create scales
     var yLinearScale = d3.scaleLinear()
       .domain([d3.min(fertData, d => d[chosenYAxis]) / 1.5, d3.max(fertData, d => d[chosenYAxis])])
       .range([height, 0]);
     return yLinearScale;
   }
 
-// function used for updating xAxis var upon click on axis label
+// Function used for updating xAxis var upon click on axis label
 function renderXAxes(newXScale, xAxis) {
   var bottomAxis = d3.axisBottom(newXScale);
-
   xAxis.transition()
     .duration(1000)
     .call(bottomAxis);
-
   return xAxis;
 }
 
+// Function used for updating yAxis var upon click on axis label
 function renderYAxes(newYScale, yAxis) {
   var leftAxis = d3.axisLeft(newYScale);
-
   yAxis.transition()
     .duration(1000)
     .call(leftAxis);
-
   return yAxis;
 }
 // Function used for updating circles group when new X axis is selected
 function renderXCircles(circlesGroup, newXScale, chosenXaxis) {
-
     circlesGroup.transition()
       .duration(1000)
       .attr("cx", d => newXScale(d[chosenXAxis]));
-  
     return circlesGroup;
   }
 
 // Function used for updating circles group when new Y axis is selected
 function renderYCircles(circlesGroup, newYScale, chosenYaxis) {
-
     circlesGroup.transition()
       .duration(1000)
       .attr("cy", d => newYScale(d[chosenYAxis]));
-
   return circlesGroup;
 }
 
