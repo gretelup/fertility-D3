@@ -12,6 +12,7 @@
     crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
     crossorigin="anonymous">
+  <link rel="stylesheet" href="assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/d3Style.css">
 
@@ -21,7 +22,12 @@
   <div class="container">
     <div class="row">
       <div class="col-xs-12 col-md-12">
-        <h1>D3Times</h1>
+        <div class="jumbotron">
+          <h1 class="display-4">D3Times</h1>
+          <p class="lead">Fertility and Demographics</p>
+          <hr class="my-4">
+          <p>We examined all women between the ages of 15-50 who have given birth within the past year to greater understand the demographics they inhabit across the United States.</p>
+        </div>
       </div>
     </div>
     <div class="row">
@@ -34,18 +40,14 @@
     <div class="row">
       <div class="col-xs-12  col-md-9">
         <div class="article">
-          <h2>Correlations Discovered Between Health Risks and Age, Income</h2>
-          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
-            quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
-            ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-
-          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
-            quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
-            ultricies mi vitae est. Mauris placerat eleifend leo.</p>
-
-          <p>Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor
-            quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean
-            ultricies mi vitae est. Mauris placerat eleifend leo.</p>
+          <h2>Correlations in Demographics of Pregnant Women</h2>
+          <p>By using the above graphics, we can examine if there is any correlation between given demographics of women between the ages of 15-50 who have given birth in the past year. The dataset used is based on 2017 ACS 5-year estimates from the U.S. Census Bureau and the Behavioral Risk Factor Surveillance System: <a href="https://factfinder.census.gov/faces/tableservices/jsf/pages/productview.xhtml?pid=ACS_17_5YR_S1301&prodType=table.">Search Results Dataset</a> The numbers reported are estimates of the % of distribution for each demographic.</p>
+          <hr>
+          <h2> Observations</h2>
+          <p>One observation is that there is a correlation between poverty and women without a high school degree within this population. Puerto Rico appears to be an outlier here in that there is a high level of poverty in this demographic, but an average level of women without a high school degree.</p>
+          <p>There also appears to be a correlation between being unmarried and being in poverty in this demographic. In this case, Puerto Rico has both the highest rate of unemployment and the highest rate of unmarried women in the United States, whereas Utah has the smallest rate of both. 
+          </p>
+          <p>Another observation is that there is a correlation between being a teenager and experiencing poverty within this demographic. Again, Puerto Rico has a very high percentage of both as compared to the rest of the United States.</p>
         </div>
       </div>
     </div>
